@@ -1,0 +1,13 @@
+sshriram2
+Current directory: /home/sshriram2/mi3Testing/hazard_detection_CLIP/hpc_jobs
+Starting job...
+/home/sshriram2/.conda/envs/clip_scores/lib/python3.10/site-packages/detectron2/model_zoo/model_zoo.py:4: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+Running panoptic inference on: cuda
+model_final_c10459.pkl: 0.00B [00:00, ?B/s]model_final_c10459.pkl:   0%|          | 8.19k/184M [00:00<1:55:50, 26.5kB/s]model_final_c10459.pkl:  10%|█         | 18.9M/184M [00:00<00:02, 59.8MB/s]  model_final_c10459.pkl:  23%|██▎       | 43.0M/184M [00:00<00:01, 116MB/s] model_final_c10459.pkl:  36%|███▌      | 66.6M/184M [00:00<00:00, 153MB/s]model_final_c10459.pkl:  50%|█████     | 92.3M/184M [00:00<00:00, 183MB/s]model_final_c10459.pkl:  59%|█████▉    | 110M/184M [00:00<00:00, 180MB/s] model_final_c10459.pkl:  71%|███████   | 131M/184M [00:00<00:00, 190MB/s]model_final_c10459.pkl:  83%|████████▎ | 153M/184M [00:01<00:00, 198MB/s]model_final_c10459.pkl:  96%|█████████▋| 178M/184M [00:01<00:00, 212MB/s]model_final_c10459.pkl: 184MB [00:01, 150MB/s]                           
+Traceback (most recent call last):
+  File "/home/sshriram2/mi3Testing/hazard_detection_CLIP/scripts/segment_panoptic.py", line 28, in <module>
+    meta = MetadataCatalog.get(cfg.DATASETS.PANOPTIC_FPN.DATASET_NAME)
+  File "/home/sshriram2/.conda/envs/clip_scores/lib/python3.10/site-packages/yacs/config.py", line 141, in __getattr__
+    raise AttributeError(name)
+AttributeError: PANOPTIC_FPN
