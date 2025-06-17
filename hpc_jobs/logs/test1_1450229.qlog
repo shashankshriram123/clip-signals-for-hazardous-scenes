@@ -1,0 +1,6 @@
+sshriram2
+Current directory: /home/sshriram2/mi3Testing/hazard_detection_CLIP/hpc_jobs
+Starting job...
+/home/sshriram2/.conda/envs/clip_scores/lib/python3.10/site-packages/detectron2/model_zoo/model_zoo.py:4: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+Running inference on: cuda
