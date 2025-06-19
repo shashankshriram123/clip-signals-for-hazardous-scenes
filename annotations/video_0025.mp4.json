@@ -1,0 +1,19 @@
+{
+  "video": "video_0025.mp4",
+  "description": "group of rodents crossing road",
+  "total_frames": 542,
+  "target_hazard" :  "rodents",
+
+  "singular_hazard": false,
+  "group_hazard": true,
+
+  "appears_frame": 115,
+  "hazard_start_frame": 115,
+  "hazard_end_frame": 340,
+  "last_visible_frame": 300,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 115, "end": 340 }
+  ]
+}

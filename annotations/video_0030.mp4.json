@@ -1,0 +1,19 @@
+{
+  "video": "video_0030.mp4",
+  "description": "moose crossing road",
+  "total_frames": 333,
+  "target_hazard" :  "moose",
+
+  "singular_hazard": true,
+  "group_hazard": false,
+
+  "appears_frame": 39,
+  "hazard_start_frame": 39,
+  "hazard_end_frame": 290,
+  "last_visible_frame": 300,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 39, "end": 290 }
+  ]
+}
