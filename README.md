@@ -1,123 +1,109 @@
-# clip-signals-for-hazardous-scenes
+# CLIP Signals for Hazardous Scenes
 
-A research playground for rapid experiments on **hazard detection** in dash‑cam footage.
-The repo combines
-
-* **CLIP‑based similarity scoring** for scene retrieval
-* **Instance & Panoptic segmentation** (Detectron 2)
-* **Simple HPC batch jobs** so you can scale runs on UC Merced’s cluster without `sudo`
-
-> **Goal**  Feed pixel‑precise object/"stuff" masks into downstream reasoning modules (e.g. VLMs) so that higher‑level hazard logic doesn’t have to re‑discover where the road, cars, or pedestrians are.
+> **Goal:** Detect and localise hazardous events in driving videos using CLIP similarity scores.
+>
+> *Current dataset:* 4 short clips (`video_0024–0031`).
+> *Prompts per frame:* 5 (3 generic animal prompts + 2 video‑specific prompts)
 
 ---
 
-## 1  Folder layout
+\## Repository Structure
 
-| Path                    | Contents                                                     |
-| ----------------------- | ------------------------------------------------------------ |
-| `dataset/`              | Raw videos for testing (`video_0024.mp4`, …)                 |
-| `scripts/`              | All segmentation + plotting scripts (see below)              |
-| `segmented_everything/` | Instance‑segmented videos written by `segment_everything.py` |
-| `segmented_panoptic/`   | Panoptic‑segmented videos from `segment_panoptic.py`         |
-| `graphs/`               | Similarity‑score plots produced by earlier CLIP runs         |
-| `hpc_jobs/`             | SLURM batch scripts & log stub (`logs/`)                     |
-| `requirements.txt`      | Conda/pip dependency pin (mirrors commands below)            |
-
----
-
-## 2  Quick start (local)
-
-```bash
-# 1. Clone
-$ git clone https://github.com/shashankshriram123/clip-signals-for-hazardous-scenes.git
-$ cd clip-signals-for-hazardous-scenes
-
-# 2. Create env (CPU‑only example)
-$ conda create -n clip_scores python=3.10 -y
-$ conda activate clip_scores
-
-# 3. Install vision stack
-$ pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-$ pip install numpy==1.24.4 opencv-python cython pyyaml iopath tqdm
-
-# 4. Detectron2 build (source, no sudo)
-$ git clone https://github.com/facebookresearch/detectron2.git
-$ pip install -e detectron2 --no-build-isolation --no-deps
-
-# 5. Run a quick test on one video
-$ python scripts/segment_panoptic.py
+```
+clip-signals-for-hazardous-scenes/
+├── annotations/            # ground‑truth JSONs (video_xxxx.mp4.json)
+├── clip_scores/            # ⋯.npy scores + prompt lists + evaluation CSV
+├── dataset/                # raw .mp4 videos (source only)
+├── scripts/                # inference + evaluation utilities
+└── graphs/                 # per‑video similarity plots
 ```
 
-> If you **have CUDA 11.7+ and a driver** just replace the CPU wheels with the matching `+cu117` wheels and Detectron2 will auto‑run on GPU.
+---
+
+\## Pipeline Overview
+
+1. **Frame Scoring** (`run_clip_similarity.py`)
+
+   * For each video, compute CLIP similarity for **five prompts**:
+
+     1. `animal`
+     2. `animal crossing the road`
+     3. `animal crossing the road unexpectedly`
+     4. *video‑specific prompt 1*  (e.g. `dog crossing road`)
+     5. *video‑specific prompt 2*  (e.g. `dog`)
+   * Save a `(frames × 5)` array → `clip_scores/video_xxxx.npy`
+   * Save the prompt list → `video_xxxx_prompts.json`
+
+2. **Evaluation** (`evaluate_clip_scores.py`)
+
+   * Reshape each `.npy` to `(frames, 5)`.
+   * **Column choice**
+     \* If ground‑truth hazard prompt appears in columns 4–5 → use that column.
+     \* Else → take `max(axis=1)` of the first three generic columns.
+   * Threshold scores at **T = 0.25** → predicted hazard frames.
+   * Compare to ground‑truth hazard interval → compute metrics below.
 
 ---
 
-## 3  Segmentation scripts
+\## What the Metrics Mean
 
-| Script                  | Model                                 | What it does                                         | Typical output               |
-| ----------------------- | ------------------------------------- | ---------------------------------------------------- | ---------------------------- |
-| `segment_frames.py`     | Mask R‑CNN (`mask_rcnn_R_50_FPN_3x`)  | Instance segmentation on *images*                    | `segmented_frames/*.jpg`     |
-| `segment_everything.py` | Mask R‑CNN                            | Instance segmentation on images **and** videos       | `segmented_everything/*.mp4` |
-| `segment_panoptic.py`   | Panoptic FPN (`panoptic_fpn_R_50_3x`) | Panoptic segmentation ("things" + "stuff") on videos | `segmented_panoptic/*.mp4`   |
+| Metric            | Formula         | Intuition                                            |     |           |   |                                                       |
+| ----------------- | --------------- | ---------------------------------------------------- | --- | --------- | - | ----------------------------------------------------- |
+| **Precision (P)** |  TP / (TP + FP) | "When I predict a hazard, how often am I right?"     |     |           |   |                                                       |
+| **Recall (R)**    |  TP / (TP + FN) | "When a hazard exists, how often do I catch it?"     |     |           |   |                                                       |
+| **F1 Score**      |  2PR / (P + R)  | Harmonic mean → high **only** if both P & R are high |     |           |   |                                                       |
+| **Temporal IoU**  |                 | pred ∩ gt                                            |  /  | pred ∪ gt |   | Overlap between predicted and true time windows (0–1) |
+| **Threshold T**   | –               | Similarity cutoff (0.25). ↓T ⇒ ↑Recall, ↓Precision   |     |           |   |                                                       |
 
-All three
+**TP** = true‑positive frames    **FP** = false‑positive frames    **FN** = false‑negative frames
 
-1. Auto‑detect GPU vs CPU (`torch.cuda.is_available()`).
-2. Download weights on first run.
-3. Use random but consistent RGB palettes.
-4. Log progress every 50 frames.
+---
 
-### Example‑usage
+\## Current Results (T = 0.25)
+
+| Video    | Temporal IoU | Precision | Recall    | F1 Score  | Notes                                           |
+| -------- | ------------ | --------- | --------- | --------- | ----------------------------------------------- |
+| **0025** | **0.678**    | 0.757     | **0.867** | **0.808** | Best overall clip                               |
+| 0030     | 0.630        | **0.970** | 0.643     | 0.773     | Very high precision; raise recall by lowering T |
+| 0031     | 0.484        | 0.949     | 0.497     | 0.652     | Good precision, missed half GT frames           |
+| 0024     | 0.444        | 0.829     | 0.488     | 0.615     | Similar to 0031                                 |
+
+CSV version: `clip_scores/clip_eval.csv`.
+
+---
+
+\## Next Steps
+
+1. **Threshold Sweep**
+
+   * Evaluate T ∈ \[0.15 … 0.30] and plot IoU/F1 vs T.
+2. **Prompt Refinement**
+
+   * Try using *only* the hazard‑specific column when available.
+3. **False‑Negative Inspection**
+
+   * Visualise frames missed in 0024/0031 → adjust prompts or pre‑processing.
+4. **Extend Dataset**
+
+   * Add more hazard classes (pedestrians, construction, debris) and videos.
+
+---
+
+\## Quick Usage
 
 ```bash
-# Instance masks only
-python scripts/segment_everything.py \
-  --input_dir dataset/ --out_dir segmented_everything/
+# 1. Create & activate env
+conda create -n clip_scores python=3.10 -y
+conda activate clip_scores
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+pip install git+https://github.com/openai/CLIP.git opencv-python matplotlib tqdm numpy pillow
 
-# Panoptic masks (recommended for hazard work)
-python scripts/segment_panoptic.py \
-  --input_dir dataset/ --out_dir segmented_panoptic/
+# 2. Generate scores & plots\python scripts/run_clip_similarity.py   # loops over dataset/*.mp4
+
+# 3. Evaluate
+python scripts/evaluate_clip_scores.py  # writes clip_scores/clip_eval.csv
 ```
 
-*(Both scripts fall back to the default paths if flags are omitted.)*
-
 ---
 
-## 4  Batch runs on UC Merced HPC
-
-1. Edit `hpc_jobs/run_segmentation.slurm` – point `--input_dir` to your scratch space.
-2. Submit with `sbatch hpc_jobs/run_segmentation.slurm`.
-3. Logs land in `hpc_jobs/logs/*.qlog` (as wired in the SLURM header).
-
-The SLURM script loads GCC 11 + CMake 3.21 modules and activates the `clip_scores` Conda env before invoking `python segment_panoptic.py`.
-
----
-
-## 5  Troubleshooting
-
-| Symptom                                                    | Fix                                                                           |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| **`RuntimeError: Found no NVIDIA driver`**                 | GPU build of PyTorch but no driver → reinstall CPU wheels or load a GPU node. |
-| **`ModuleNotFoundError: torch` during Detectron2 install** | Add `--no-build-isolation` so the build sees your existing PyTorch.           |
-| **NumPy 2.x mismatch** (`Numpy is not available`)          | `pip install numpy==1.24.4` (Detectron2 wheels are still on NumPy 1.x ABI).   |
-| Empty-mask reshape crash                                   | Guarded in latest scripts (`if masks.shape[0] == 0: return frame`).           |
-
----
-
-## 6  Roadmap / Ideas
-
-* Plug panoptic masks into the CLIP similarity pipeline → richer hazard scoring.
-* Train a lightweight **Cityscapes** model for even finer road classes (lane‑marks, poles…).
-* Export masks as **COCO‑JSON** to feed into downstream VLM prompts.
-* Package SLURM runs as **Snakemake** workflow for full reproducibility.
-
----
-
-## 7  License & citation
-
-Code is Apache‑2.0.  Models are from the official Detectron 2 Model Zoo (Apache 2.0).
-If you use this repo in academic work, please cite **Detectron2** and **Mask R‑CNN / Panoptic FPN** original papers.
-
----
-
-Made with ☕ in Merced. Pull requests are welcome!
+*Maintainer: @shashankshriram123 – feel free to open issues or PRs with improvements!*
