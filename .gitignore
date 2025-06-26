@@ -3,10 +3,5 @@ script/setup/detectron2/
 /hpc_jobs/logs/
 
 # Ignore every .mp4 in dataset/
-dataset/*.mp4
+dataset/
 
-# …except the first four scenes
-!dataset/scene_001.mp4
-!dataset/scene_002.mp4
-!dataset/scene_003.mp4
-!dataset/scene_004.mp4
