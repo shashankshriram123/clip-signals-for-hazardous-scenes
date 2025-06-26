@@ -1,0 +1,41 @@
+THRESH = 0.2
+Row  1: animal
+Row  2: debris
+Row  3: obstacle
+Row  4: hazard
+Row  5: blockage
+Row  6: construction
+Row  7: barricade
+Row  8: roadwork
+Row  9: cone
+Row 10: worker
+Row 11: pedestrian
+Row 12: emergency
+Row 13: crash
+Row 14: collision
+Row 15: accident
+Row 16: stall
+Row 17: breakdown
+Row 18: object
+Row 19: obstruction
+Row 20: animal in the road
+Row 21: animal crossing the road
+Row 22: animal crossing the road unexpectedly
+Row 23: construction zone ahead
+Row 24: construction workers in the roadway
+Row 25: construction blocking the lane
+Row 26: traffic cones on the road
+Row 27: road rerouted by workers
+Row 28: stalled vehicle in the lane
+Row 29: vehicle swerving out of control
+Row 30: object debris on the road
+Row 31: unexpected debris on the road
+Row 32: dangerous debris on the road
+Row 33: tumbleweed rolling across the road
+Row 34: trash on the road
+Row 35: household object lying on the road
+Row 36: road blocked ahead
+Row 37: emergency vehicle or blocked road
+Row 38: road hazard ahead
+Row 39: two deer running onto the road
+Row 40: deer
