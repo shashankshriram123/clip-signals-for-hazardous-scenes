@@ -1,65 +1,70 @@
-# CLIP Signals for Hazardous Scenes
+# CLIP Signals for Hazardous Scenes
 
-> **Goal:** Detect and localise hazardous events in driving videos using CLIP similarity scores.
->
-> *Current dataset:* 4 short clips (`video_0024–0031`).
-> *Prompts per frame:* 5 (3 generic animal prompts + 2 video‑specific prompts)
+> **Goal:** Detect and localise hazardous events in driving videos using CLIP similarity scores.
+> *Original dataset:* 4 short clips (`video_0024–0031`)
+> *Prompts per frame:* 5 (3 generic animal prompts + 2 video‑specific prompts)
 
 ---
 
-\## Repository Structure
+## Repository Structure
 
 ```
 clip-signals-for-hazardous-scenes/
-├── annotations/            # ground‑truth JSONs (video_xxxx.mp4.json)
-├── clip_scores/            # ⋯.npy scores + prompt lists + evaluation CSV
-├── dataset/                # raw .mp4 videos (source only)
-├── scripts/                # inference + evaluation utilities
-└── graphs/                 # per‑video similarity plots
+├── annotations/              # Ground-truth JSONs (scene_xxx.mp4.json)
+├── clip_scores/              # .npy similarity scores, prompt lists, eval CSVs
+├── dataset/                  # Raw videos (.mp4) – ignored by git (email for access)
+├── graphs/                   # Similarity plots & threshold sweep results
+├── scripts/
+│   ├── run/                  # Main pipeline scripts
+│   ├── debug/                # Dev-time utilities (e.g., video splitting)
+│   └── setup/                # Setup and dependencies (e.g., CLIP wrappers)
+└── hpc_jobs/                 # SLURM job scripts for remote execution
 ```
 
 ---
 
-\## Pipeline Overview
+## Pipeline Overview
 
-1. **Frame Scoring** (`run_clip_similarity.py`)
+1. **Frame Scoring** (`run_clip_similarity.py`)
 
    * For each video, compute CLIP similarity for **five prompts**:
 
      1. `animal`
      2. `animal crossing the road`
      3. `animal crossing the road unexpectedly`
-     4. *video‑specific prompt 1*  (e.g. `dog crossing road`)
-     5. *video‑specific prompt 2*  (e.g. `dog`)
-   * Save a `(frames × 5)` array → `clip_scores/video_xxxx.npy`
-   * Save the prompt list → `video_xxxx_prompts.json`
+     4. *video-specific prompt 1* (e.g. `dog crossing road`)
+     5. *video-specific prompt 2* (e.g. `dog`)
+   * Save results as:
 
-2. **Evaluation** (`evaluate_clip_scores.py`)
+     * `.npy` array of shape `(frames × 5)`
+     * associated `prompts.json`
 
-   * Reshape each `.npy` to `(frames, 5)`.
-   * **Column choice**
-     \* If ground‑truth hazard prompt appears in columns 4–5 → use that column.
-     \* Else → take `max(axis=1)` of the first three generic columns.
-   * Threshold scores at **T = 0.25** → predicted hazard frames.
-   * Compare to ground‑truth hazard interval → compute metrics below.
+2. **Evaluation** (`evaluate_clip_scores.py`)
 
----
+   * Select the most relevant column:
 
-\## What the Metrics Mean
-
-| Metric            | Formula         | Intuition                                            |     |           |   |                                                       |
-| ----------------- | --------------- | ---------------------------------------------------- | --- | --------- | - | ----------------------------------------------------- |
-| **Precision (P)** |  TP / (TP + FP) | "When I predict a hazard, how often am I right?"     |     |           |   |                                                       |
-| **Recall (R)**    |  TP / (TP + FN) | "When a hazard exists, how often do I catch it?"     |     |           |   |                                                       |
-| **F1 Score**      |  2PR / (P + R)  | Harmonic mean → high **only** if both P & R are high |     |           |   |                                                       |
-| **Temporal IoU**  |                 | pred ∩ gt                                            |  /  | pred ∪ gt |   | Overlap between predicted and true time windows (0–1) |
-| **Threshold T**   | –               | Similarity cutoff (0.25). ↓T ⇒ ↑Recall, ↓Precision   |     |           |   |                                                       |
-
-**TP** = true‑positive frames    **FP** = false‑positive frames    **FN** = false‑negative frames
+     * If ground-truth hazard uses prompts 4–5, choose that column.
+     * Else, use `max(axis=1)` over generic prompts (1–3).
+   * Apply threshold `T = 0.25` to predict hazard frames.
+   * Compare to ground-truth intervals via **Temporal IoU** and other metrics.
 
 ---
 
-\## Current Results (T = 0.25)
+## What the Metrics Mean
+
+| Metric            | Formula         | Intuition                                            |
+| ----------------- | --------------- | ---------------------------------------------------- |
+| **Precision (P)** |  TP / (TP + FP) | "When I predict a hazard, how often am I right?"     |
+| **Recall (R)**    |  TP / (TP + FN) | "When a hazard exists, how often do I catch it?"     |
+| **F1 Score**      |  2PR / (P + R)  | High only if both precision and recall are high      |
+| **Temporal IoU**  |                 | Overlap between predicted and ground-truth intervals |
+| **Threshold (T)** | –               | CLIP similarity cutoff (default: 0.25)               |
+
+**TP** = true‑positive frames     **FP** = false‑positive     **FN** = false‑negative
+
+---
+
+## Current Results (T = 0.25)
 
 | Video    | Temporal IoU | Precision | Recall    | F1 Score  | Notes                                           |
 | -------- | ------------ | --------- | --------- | --------- | ----------------------------------------------- |
@@ -68,42 +73,48 @@ clip-signals-for-hazardous-scenes/
 | 0031     | 0.484        | 0.949     | 0.497     | 0.652     | Good precision, missed half GT frames           |
 | 0024     | 0.444        | 0.829     | 0.488     | 0.615     | Similar to 0031                                 |
 
-CSV version: `clip_scores/clip_eval.csv`.
+📄 CSV version: `clip_scores/clip_eval.csv`
 
 ---
 
-\## Next Steps
+## Next Steps
 
 1. **Threshold Sweep**
 
-   * Evaluate T ∈ \[0.15 … 0.30] and plot IoU/F1 vs T.
+   * Try `T ∈ [0.15 … 0.30]`, visualize IoU and F1
+
 2. **Prompt Refinement**
 
-   * Try using *only* the hazard‑specific column when available.
-3. **False‑Negative Inspection**
+   * Experiment with better hazard-specific phrasing
 
-   * Visualise frames missed in 0024/0031 → adjust prompts or pre‑processing.
-4. **Extend Dataset**
+3. **False-Negative Inspection**
 
-   * Add more hazard classes (pedestrians, construction, debris) and videos.
+   * Visualize low-scoring but GT-labeled frames in videos 0024/0031
+
+4. **Dataset Expansion**
+
+   * Add more hazard categories (pedestrian, debris, construction)
 
 ---
 
-\## Quick Usage
+## Quick Usage
 
 ```bash
-# 1. Create & activate env
+# 1. Create environment
 conda create -n clip_scores python=3.10 -y
 conda activate clip_scores
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# 2. Install dependencies
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install git+https://github.com/openai/CLIP.git opencv-python matplotlib tqdm numpy pillow
 
-# 2. Generate scores & plots\python scripts/run_clip_similarity.py   # loops over dataset/*.mp4
+# 3. Run scoring pipeline
+python scripts/run/run_clip_similarity.py
 
-# 3. Evaluate
-python scripts/evaluate_clip_scores.py  # writes clip_scores/clip_eval.csv
+# 4. Run evaluation
+python scripts/evaluate_clip_scores.py
 ```
 
 ---
 
-*Maintainer: @shashankshriram123 – feel free to open issues or PRs with improvements!*
+📩 **Note:** For access to the full dataset (14+ driving clips), email `sshrir2@ucsc.edu`.
