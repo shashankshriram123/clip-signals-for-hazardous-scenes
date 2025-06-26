@@ -1,1 +1,3 @@
-scripts/detectron2/
+script/setup/detectron2/
+
+/hpc_jobs/logs/

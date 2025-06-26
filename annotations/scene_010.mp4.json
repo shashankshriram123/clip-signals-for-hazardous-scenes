@@ -1,0 +1,20 @@
+{
+  "video": "scene_010.mp4",
+  "description": "tumbleweed rolling across the freeway",
+  "total_frames": 207,
+  "target_hazard": "tumbleweed",
+
+  "singular_hazard": true,
+  "group_hazard": false,
+
+  "appears_frame": 40,
+  "hazard_start_frame": 40,
+  "hazard_end_frame": 174,
+  "last_visible_frame": 174,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 40, "end": 174 }
+  ]
+}
+

@@ -1,0 +1,20 @@
+{
+  "video": "scene_011.mp4",
+  "description": "trash lying on the road",
+  "total_frames": 661,
+  "target_hazard": "trash",
+
+  "singular_hazard": true,
+  "group_hazard": false,
+
+  "appears_frame": 145,
+  "hazard_start_frame": 145,
+  "hazard_end_frame": 471,
+  "last_visible_frame": 471,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 145, "end": 471 }
+  ]
+}
+

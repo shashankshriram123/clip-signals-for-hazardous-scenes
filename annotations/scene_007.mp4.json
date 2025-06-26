@@ -1,0 +1,20 @@
+{
+  "video": "scene_007.mp4",
+  "description": "traffic cones on side of road",
+  "total_frames": 259,
+  "target_hazard": "traffic cones",
+
+  "singular_hazard": false,
+  "group_hazard": true,
+
+  "appears_frame": 144,
+  "hazard_start_frame": 144,
+  "hazard_end_frame": 200,
+  "last_visible_frame": 200,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 144, "end": 200 }
+  ]
+}
+

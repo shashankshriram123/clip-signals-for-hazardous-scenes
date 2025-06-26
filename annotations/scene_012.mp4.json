@@ -1,0 +1,20 @@
+{
+  "video": "scene_012.mp4",
+  "description": "fan lying in the roadway",
+  "total_frames": 164,
+  "target_hazard": "fan",
+
+  "singular_hazard": true,
+  "group_hazard": false,
+
+  "appears_frame": 84,
+  "hazard_start_frame": 120,
+  "hazard_end_frame": 134,
+  "last_visible_frame": 134,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 120, "end": 134 }
+  ]
+}
+

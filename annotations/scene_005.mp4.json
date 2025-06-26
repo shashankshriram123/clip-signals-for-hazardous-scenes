@@ -1,0 +1,18 @@
+{
+  "video": "scene_005.mp4",
+  "description": null,
+  "total_frames": 5125,
+  "target_hazard": null,
+
+  "singular_hazard": null,
+  "group_hazard": null,
+
+  "appears_frame": null,
+  "hazard_start_frame": null,
+  "hazard_end_frame": null,
+  "last_visible_frame": null,
+  "still_in_frame_at_end": null,
+
+  "events": []
+}
+

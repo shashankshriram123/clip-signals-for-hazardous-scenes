@@ -1,0 +1,20 @@
+{
+  "video": "scene_008.mp4",
+  "description": "construction workers on the side of the road",
+  "total_frames": 259,
+  "target_hazard": "construction workers",
+
+  "singular_hazard": false,
+  "group_hazard": true,
+
+  "appears_frame": 144,
+  "hazard_start_frame": 155,
+  "hazard_end_frame": 240,
+  "last_visible_frame": 207,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 155, "end": 240 }
+  ]
+}
+

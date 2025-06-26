@@ -1,0 +1,20 @@
+{
+  "video": "scene_014.mp4",
+  "description": "construction workers rerouting traffic",
+  "total_frames": 701,
+  "target_hazard": "construction workers",
+
+  "singular_hazard": false,
+  "group_hazard": true,
+
+  "appears_frame": 0,
+  "hazard_start_frame": 0,
+  "hazard_end_frame": 594,
+  "last_visible_frame": 594,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 0, "end": 594 }
+  ]
+}
+

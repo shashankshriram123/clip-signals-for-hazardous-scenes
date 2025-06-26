@@ -22,5 +22,5 @@ source /home/sshriram2/data/miniconda3/etc/profile.d/conda.sh
 conda activate /home/sshriram2/.conda/envs/clip_scores
 
 # Run script
-cd "/home/sshriram2/mi3Testing/hazard_detection_CLIP/scripts"
+cd "/home/sshriram2/mi3Testing/hazard_detection_CLIP/scripts/run"
 python -u run_clip_similarity.py

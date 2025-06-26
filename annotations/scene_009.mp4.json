@@ -1,0 +1,20 @@
+{
+  "video": "scene_009.mp4",
+  "description": "construction zone with traffic-cone setup",
+  "total_frames": 359,
+  "target_hazard": "traffic cone",
+
+  "singular_hazard": false,
+  "group_hazard": true,
+
+  "appears_frame": 0,
+  "hazard_start_frame": 0,
+  "hazard_end_frame": 314,
+  "last_visible_frame": 314,
+  "still_in_frame_at_end": false,
+
+  "events": [
+    { "start": 0, "end": 314 }
+  ]
+}
+
