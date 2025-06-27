@@ -1,5 +1,6 @@
 {
   "video": "scene_010.mp4",
+  "type" : "debris",
   "description": "tumbleweed rolling across the freeway",
   "total_frames": 207,
   "target_hazard": "tumbleweed",

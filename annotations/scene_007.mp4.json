@@ -1,5 +1,6 @@
 {
   "video": "scene_007.mp4",
+  "type" : "construction",
   "description": "traffic cones on side of road",
   "total_frames": 259,
   "target_hazard": "traffic cones",

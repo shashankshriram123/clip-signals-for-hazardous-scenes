@@ -1,0 +1,15 @@
+scene,gt_prompt,top_prompt,match,IoU_gt,IoU_top
+scene_001,deer,animal,False,0.663,0.702
+scene_002,rodents,animal,False,0.573,0.658
+scene_003,moose,obstacle,False,0.797,0.751
+scene_004,dog,construction workers in the roadway,False,0.481,0.794
+scene_005,road hazard ahead,—,False,nan,0.0
+scene_006,yellow car losing steering,roadwork,False,0.999,0.999
+scene_007,traffic cones,blockage,False,0.215,0.431
+scene_008,construction workers,animal,False,0.106,0.485
+scene_009,traffic cone,debris,False,0.872,0.872
+scene_010,tumbleweed,debris,False,0.76,0.644
+scene_011,trash,barricade,False,0.533,0.627
+scene_012,fan,road hazard ahead,False,0.0,0.778
+scene_013,debris,road blocked ahead,False,0.25,0.741
+scene_014,construction workers,obstacle,False,0.039,0.846

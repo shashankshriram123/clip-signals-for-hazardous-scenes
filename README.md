@@ -1,8 +1,8 @@
 # CLIP Signals for Hazardous Scenes
 
 > **Goal:** Detect and localise hazardous events in driving videos using CLIP similarity scores.
-> *Original dataset:* 4 short clips (`video_0024–0031`)
-> *Prompts per frame:* 5 (3 generic animal prompts + 2 video‑specific prompts)
+> *Dataset:* 14 short driving scenes (animal, construction, debris, accident, normal‑no‑hazard).
+> *Prompts per frame:* 40 (19 generic + 3 animal + 5 construction + 2 vehicle anomalies + misc … see `generate_scores.py`).
 
 ---
 
@@ -10,111 +10,92 @@
 
 ```
 clip-signals-for-hazardous-scenes/
-├── annotations/              # Ground-truth JSONs (scene_xxx.mp4.json)
+├── annotations/              # Ground‑truth JSON (scene_xxx.mp4.json)
 ├── clip_scores/              # .npy similarity scores, prompt lists, eval CSVs
-├── dataset/                  # Raw videos (.mp4) – ignored by git (email for access)
-├── graphs/                   # Similarity plots & threshold sweep results
-├── scripts/
-│   ├── run/                  # Main pipeline scripts
-│   ├── debug/                # Dev-time utilities (e.g., video splitting)
-│   └── setup/                # Setup and dependencies (e.g., CLIP wrappers)
-└── hpc_jobs/                 # SLURM job scripts for remote execution
+├── dataset/                  # Raw videos (.mp4) – ignored by git
+├── graphs/                   # Similarity plots & threshold sweep figures
+├── scripts/                  # Pipeline + analysis utilities
+└── hpc_jobs/                 # SLURM batch scripts
 ```
 
 ---
 
 ## Pipeline Overview
 
-1. **Frame Scoring** (`run_clip_similarity.py`)
+1. **Score generation** (`scripts/analysis/generate_scores.py`)
 
-   * For each video, compute CLIP similarity for **five prompts**:
+   * Encodes every frame against the full prompt bank (40×frames) and saves `scene_xxx.npy` + prompt list.
+2. **Evaluation & Threshold Sweep**
 
-     1. `animal`
-     2. `animal crossing the road`
-     3. `animal crossing the road unexpectedly`
-     4. *video-specific prompt 1* (e.g. `dog crossing road`)
-     5. *video-specific prompt 2* (e.g. `dog`)
-   * Save results as:
+   * `analysis/threshold_sweep.py` — global sweep, prints boxed table, highlights best‑IoU **T**.
+   * `analysis/threshold_by_type.py` — per‑hazard sweep using the `type` key in each annotation.
+3. **Visualisation**
 
-     * `.npy` array of shape `(frames × 5)`
-     * associated `prompts.json`
-
-2. **Evaluation** (`evaluate_clip_scores.py`)
-
-   * Select the most relevant column:
-
-     * If ground-truth hazard uses prompts 4–5, choose that column.
-     * Else, use `max(axis=1)` over generic prompts (1–3).
-   * Apply threshold `T = 0.25` to predict hazard frames.
-   * Compare to ground-truth intervals via **Temporal IoU** and other metrics.
+   * `analysis/plot_top_prompts.py` plots top‑5 prompt curves per scene (excludes GT rows 39–40).
 
 ---
 
-## What the Metrics Mean
+## Threshold Calibration
 
-| Metric            | Formula         | Intuition                                            |
-| ----------------- | --------------- | ---------------------------------------------------- |
-| **Precision (P)** |  TP / (TP + FP) | "When I predict a hazard, how often am I right?"     |
-| **Recall (R)**    |  TP / (TP + FN) | "When a hazard exists, how often do I catch it?"     |
-| **F1 Score**      |  2PR / (P + R)  | High only if both precision and recall are high      |
-| **Temporal IoU**  |                 | Overlap between predicted and ground-truth intervals |
-| **Threshold (T)** | –               | CLIP similarity cutoff (default: 0.25)               |
+| Scope        | Optimal T | mean IoU  | P    | R    | F1   | Notes                        |
+| ------------ | --------- | --------- | ---- | ---- | ---- | ---------------------------- |
+| **Global**   | **0.28**  | **0.547** | 0.46 | 0.79 | 0.55 | 14 scenes, no smoothing      |
+| Accident     | 0.15      | 0.999     | –    | –    | –    | single clip – always‑on mask |
+| Animal       | 0.25      | 0.658     | –    | –    | –    | n = 4                        |
+| Construction | 0.26      | 0.615     | –    | –    | –    | n = 4                        |
+| Debris       | 0.28      | 0.525     | –    | –    | –    | n = 4                        |
 
-**TP** = true‑positive frames     **FP** = false‑positive     **FN** = false‑negative
+> *IoU computed with union‑row mask **`(scores>T).any(axis=0)`**, no temporal smoothing.*
 
----
-
-## Current Results (T = 0.25)
-
-| Video    | Temporal IoU | Precision | Recall    | F1 Score  | Notes                                           |
-| -------- | ------------ | --------- | --------- | --------- | ----------------------------------------------- |
-| **0025** | **0.678**    | 0.757     | **0.867** | **0.808** | Best overall clip                               |
-| 0030     | 0.630        | **0.970** | 0.643     | 0.773     | Very high precision; raise recall by lowering T |
-| 0031     | 0.484        | 0.949     | 0.497     | 0.652     | Good precision, missed half GT frames           |
-| 0024     | 0.444        | 0.829     | 0.488     | 0.615     | Similar to 0031                                 |
-
-📄 CSV version: `clip_scores/clip_eval.csv`
+Ablation shows the global **T = 0.28** is near‑optimal for all hazard classes except the lone accident clip.
 
 ---
 
-## Next Steps
+## Metrics
 
-1. **Threshold Sweep**
+| Metric            | Formula         | Intuition                                                           |
+| ----------------- | --------------- | ------------------------------------------------------------------- |
+| **Precision (P)** | TP / (TP + FP)  | “When the model flags a hazard, how often is it correct?”           |
+| **Recall (R)**    | TP / (TP + FN)  | “When a hazard is present, how often does the model catch it?”      |
+| **F1 Score**      | 2·P·R / (P + R) | Harmonic mean — high only if both precision **and** recall are high |
+| **Temporal IoU**  | –               | Overlap between predicted and ground‑truth time windows             |
+| **Threshold (T)** | –               | CLIP similarity cutoff (default sweep 0.15 – 0.35)                  |
 
-   * Try `T ∈ [0.15 … 0.30]`, visualize IoU and F1
+**TP** = true‑positive frames    **FP** = false‑positive    **FN** = false‑negative
 
-2. **Prompt Refinement**
+## Current Clip‑Level Results (T = 0.28)
 
-   * Experiment with better hazard-specific phrasing
+| Scene      | Type   | IoU       | P    | R    | F1   |
+| ---------- | ------ | --------- | ---- | ---- | ---- |
+| scene\_001 | animal | 0.663     | 0.46 | 0.93 | 0.62 |
+| scene\_002 | animal | 0.414     | 0.52 | 0.93 | 0.63 |
+| …          | …      | …         | …    | …    | …    |
+| **mean**   | –      | **0.547** | 0.46 | 0.79 | 0.55 |
 
-3. **False-Negative Inspection**
-
-   * Visualize low-scoring but GT-labeled frames in videos 0024/0031
-
-4. **Dataset Expansion**
-
-   * Add more hazard categories (pedestrian, debris, construction)
+Full table in `clip_scores/clip_eval.csv`.
 
 ---
 
-## Quick Usage
+## Quick Usage
 
 ```bash
-# 1. Create environment
+# 1. create env
 conda create -n clip_scores python=3.10 -y
 conda activate clip_scores
-
-# 2. Install dependencies
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install git+https://github.com/openai/CLIP.git opencv-python matplotlib tqdm numpy pillow
 
-# 3. Run scoring pipeline
-python scripts/run/run_clip_similarity.py
+# 2. generate scores\python scripts/analysis/generate_scores.py
 
-# 4. Run evaluation
-python scripts/evaluate_clip_scores.py
+# 3. global threshold sweep
+python scripts/analysis/threshold_sweep.py --min 0.15 --max 0.35 --step 0.01 --smooth 0
+
+# 4. per‑hazard sweep
+python scripts/analysis/threshold_by_type.py
 ```
 
 ---
 
-📩 **Note:** For access to the full dataset (14+ driving clips), email `sshrir2@ucsc.edu`.
+## Contact
+
+For access to the full dataset or questions, email **[sshrir2@ucsc.edu](mailto:sshrir2@ucsc.edu)**.

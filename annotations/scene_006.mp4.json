@@ -1,5 +1,6 @@
 {
   "video": "scene_006.mp4",
+  "type" : "accident",
   "description": "vehicle stopped and yellow car loses control of steering",
   "total_frames": 749,
   "target_hazard": "yellow car losing steering",

@@ -1,5 +1,6 @@
 {
   "video": "video_003.mp4",
+  "type" : "animal",
   "description": "moose crossing road",
   "total_frames": 333,
   "target_hazard" :  "moose",

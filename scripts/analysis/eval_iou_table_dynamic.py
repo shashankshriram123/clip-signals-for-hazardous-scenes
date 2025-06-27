@@ -12,7 +12,7 @@ SCORE_DIR = Path(BASE) / "clip_scores"
 OUT_DIR   = Path("results")
 OUT_DIR.mkdir(exist_ok=True)
 CSV_PATH  = OUT_DIR / "iou_table_dynamic.csv"
-THRESH    = 0.20
+THRESH    = 0.35
 
 # ─── helpers ─────────────────────────────────────────────────────────────
 def mask_to_intervals(mask):

@@ -1,5 +1,6 @@
 {
   "video": "scene_008.mp4",
+  "type" : "construction",
   "description": "construction workers on the side of the road",
   "total_frames": 259,
   "target_hazard": "construction workers",

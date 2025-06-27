@@ -1,5 +1,6 @@
 {
   "video": "scene_011.mp4",
+  "type" : "debris",
   "description": "trash lying on the road",
   "total_frames": 661,
   "target_hazard": "trash",

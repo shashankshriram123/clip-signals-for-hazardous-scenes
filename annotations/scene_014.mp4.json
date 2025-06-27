@@ -1,5 +1,6 @@
 {
   "video": "scene_014.mp4",
+  "type" : "construction",
   "description": "construction workers rerouting traffic",
   "total_frames": 701,
   "target_hazard": "construction workers",

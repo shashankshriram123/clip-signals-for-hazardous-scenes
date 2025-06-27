@@ -1,5 +1,6 @@
 {
   "video": "scene_012.mp4",
+  "type" : "debris",
   "description": "fan lying in the roadway",
   "total_frames": 164,
   "target_hazard": "fan",

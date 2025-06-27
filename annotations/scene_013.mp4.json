@@ -1,5 +1,6 @@
 {
   "video": "scene_013.mp4",
+  "type" : "debris",
   "description": "debris scattered on the road",
   "total_frames": 107,
   "target_hazard": "debris",

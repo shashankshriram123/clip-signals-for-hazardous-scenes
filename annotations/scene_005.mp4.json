@@ -1,5 +1,6 @@
 {
   "video": "scene_005.mp4",
+  "type" : "normal - no hazard",
   "description": null,
   "total_frames": 5125,
   "target_hazard": null,

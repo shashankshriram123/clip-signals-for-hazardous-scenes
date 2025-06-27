@@ -6,7 +6,7 @@ from pathlib import Path
 BASE       = "/home/sshriram2/mi3Testing/hazard_detection_CLIP"
 ANNOT_DIR  = Path(BASE) / "annotations"
 SCORE_DIR  = Path(BASE) / "clip_scores"
-THRESH     = 0.20
+THRESH     = 0.350
 
 # ---------- helpers -------------------------------------------------
 def mask_to_intervals(mask):

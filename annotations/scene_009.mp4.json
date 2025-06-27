@@ -1,5 +1,6 @@
 {
   "video": "scene_009.mp4",
+  "type" : "construction",
   "description": "construction zone with traffic-cone setup",
   "total_frames": 359,
   "target_hazard": "traffic cone",

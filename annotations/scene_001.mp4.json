@@ -1,5 +1,6 @@
 {
   "video": "video_001.mp4",
+  "type" : "animal",
   "description": "two deer running onto the road",
   "total_frames": 192,
   "target_hazard" :  "deer",

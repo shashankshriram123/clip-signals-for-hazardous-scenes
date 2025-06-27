@@ -1,5 +1,6 @@
 {
   "video": "video_004.mp4",
+  "type" : "animal",
   "description": "dog crossing road",
   "total_frames": 413,
   "target_hazard" :  "dog",

@@ -1,4 +1,4 @@
-THRESH = 0.2
+THRESH = 0.35
 Row  1: animal
 Row  2: debris
 Row  3: obstacle
