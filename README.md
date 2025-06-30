@@ -37,17 +37,18 @@ clip-signals-for-hazardous-scenes/
 
 ## Threshold Calibration
 
-| Scope        | Optimal T | mean IoU  | P    | R    | F1   | Notes                        |
-| ------------ | --------- | --------- | ---- | ---- | ---- | ---------------------------- |
-| **Global**   | **0.28**  | **0.547** | 0.46 | 0.79 | 0.55 | 14 scenes, no smoothing      |
-| Accident     | 0.15      | 0.999     | –    | –    | –    | single clip – always‑on mask |
-| Animal       | 0.25      | 0.658     | –    | –    | –    | n = 4                        |
-| Construction | 0.26      | 0.615     | –    | –    | –    | n = 4                        |
-| Debris       | 0.28      | 0.525     | –    | –    | –    | n = 4                        |
+| Scope        | Optimal T | mean IoU |   P    |   R    |   F1   | Notes                           |
+|--------------|-----------|----------|--------|--------|--------|---------------------------------|
+| **Global**   | **0.28**  | **0.065**| **0.252** | **0.230** | **0.241** | 14 scenes, no smoothing          |
+| Accident     | 0.28      | 0.000    | 0.000  | 0.000  | 0.000  | single clip – empty ground truth |
+| Animal       | 0.28      | 0.120    | 0.162  | 0.316  | 0.214  | n = 4                            |
+| Construction | 0.28      | 0.255    | 0.542  | 0.325  | 0.406  | n = 4                            |
+| Debris       | 0.28      | 0.000    | 0.000  | 0.000  | 0.000  | n = 4                            |
 
-> *IoU computed with union‑row mask **`(scores>T).any(axis=0)`**, no temporal smoothing.*
+> *IoU computed with union-row mask **`(scores>T).any(axis=0)`**, no temporal smoothing.*
 
-Ablation shows the global **T = 0.28** is near‑optimal for all hazard classes except the lone accident clip.
+Ablation shows the global **T = 0.28** yields relatively low IoU and precision/recall across most hazard classes.
+
 
 ---
 
